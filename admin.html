@@ -41,14 +41,8 @@
     }
 
     @keyframes fadeIn {
-      0% {
-        opacity: 0;
-        transform: scale(0.9);
-      }
-      100% {
-        opacity: 1;
-        transform: scale(1);
-      }
+      from { opacity: 0; transform: scale(0.9); }
+      to { opacity: 1; transform: scale(1); }
     }
 
     label {
@@ -91,34 +85,95 @@
       color: green;
       display: none;
     }
-  .hamburger {
+
+    .menu-icon {
       position: absolute;
-      top: 15px;
-      left: 15px;
+      top: 20px;
+      left: 20px;
       width: 30px;
-      height: 24px;
+      height: 25px;
       display: flex;
       flex-direction: column;
       justify-content: space-between;
       cursor: pointer;
-      padding: 5px;
-      text-decoration: none;
-      z-index: 2;
+      z-index: 10;
     }
 
-    .bar {
+    .menu-icon .bar {
       height: 4px;
-      width: 100%;
-      background-color: white;
+      background: white;
       border-radius: 2px;
+      transition: all 0.3s ease;
+    }
+
+   .sidebar {
+  position: fixed;
+  top: 0;
+  left: -100%;
+  width: 260px;
+  height: 100%;
+  background: #ffffff;
+  box-shadow: 2px 0 10px rgba(0,0,0,0.2);
+  padding: 20px;
+  z-index: 999;
+  transition: left 0.3s ease;
+  overflow-y: auto;
+}
+
+.sidebar.open {
+  left: 0;
+}
+
+
+    .sidebar-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .sidebar .close-btn {
+      font-size: 24px;
+      cursor: pointer;
+    }
+
+    .sidebar nav a {
+      display: block;
+      padding: 10px 0;
+      color: #333;
+      text-decoration: none;
+      font-weight: 500;
+      border-bottom: 1px solid #eee;
+    }
+
+    .sidebar nav a:hover {
+      background: #f7f7f7;
     }
   </style>
 </head>
 <body>
 
+  <!-- Sidebar -->
+  <div class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <span class="close-btn" onclick="toggleSidebar()">&times;</span>
+      <strong>Menu</strong>
+    </div>
+    <nav>
+      <a href="random.html">Home</a>
+      <a href="new.html">Traffic Rules</a>
+    </nav>
+  </div>
+
+  <!-- Hamburger Icon -->
+  <div class="menu-icon" onclick="toggleSidebar()">
+    <div class="bar"></div>
+    <div class="bar"></div>
+    <div class="bar"></div>
+  </div>
+
   <div class="form-container">
     <form id="challanForm">
-      <label>Challan Type:</label><br><br>
+      <label>Challan Type:</label>
       <select id="challanType" name="challanType" onchange="setAmount()" required>
         <option value="">-- Select Challan Type --</option>
         <option value="Riding without helmet">Riding without helmet</option>
@@ -128,7 +183,7 @@
         <option value="Jumping red light">Jumping red light</option>
         <option value="Illegal parking">Illegal parking</option>
         <option value="Using mobile phone while driving">Using mobile phone while driving</option>
-      </select><br><br>
+      </select>
 
       <label for="helmet-challan-number">Challan Number:</label>
       <input type="text" id="helmet-challan-number" name="helmet-challan-number" required>
@@ -137,20 +192,64 @@
       <input type="text" id="helmet-vehicle-number" name="helmet-vehicle-number" required>
 
       <label for="helmet-amount">Amount (₹):</label>
-      <input type="number" id="helmet-amount" name="helmet-amount" required readonly>
+      <input type="number" id="helmet-amount" name="helmet-amount" readonly required>
 
       <input type="submit" value="Submit">
     </form>
     <div class="message" id="successMessage">Challan added successfully!</div>
   </div>
 
- <a href="index.html" class="hamburger" title="Go to Home">
-    <div class="bar"></div>
-    <div class="bar"></div>
-    <div class="bar"></div>
-  </a>
-  <script>
-    function setAmount() {
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js";
+    import { getDatabase, ref, push } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-database.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyDK9yUOLQyKxl2Ukt7NgT1Mu4hVzHYiZ_s",
+      authDomain: "traffic-registrations.firebaseapp.com",
+      projectId: "traffic-registrations",
+      storageBucket: "traffic-registrations.appspot.com",
+      messagingSenderId: "419609965646",
+      appId: "1:419609965646:web:7093d0dcd6d1bcf54b9de1",
+      measurementId: "G-WRRSYJ2TV3",
+      databaseURL: "https://traffic-registrations-default-rtdb.firebaseio.com/"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+
+    const challanForm = document.getElementById("challanForm");
+    const successMessage = document.getElementById("successMessage");
+
+    challanForm.addEventListener("submit", function (e) {
+      e.preventDefault();
+
+      const challanType = document.getElementById("challanType").value;
+      const challanNumber = document.getElementById("helmet-challan-number").value;
+      const vehicleNumber = document.getElementById("helmet-vehicle-number").value;
+      const amount = document.getElementById("helmet-amount").value;
+
+      const data = {
+        challanType,
+        challanNumber,
+        vehicleNumber,
+        amount
+      };
+
+      push(ref(db, "helmet"), data)
+        .then(() => {
+          successMessage.style.display = "block";
+          challanForm.reset();
+          document.getElementById("helmet-amount").value = "";
+          setTimeout(() => {
+            successMessage.style.display = "none";
+          }, 3000);
+        })
+        .catch((error) => {
+          alert("Error saving data: " + error.message);
+        });
+    });
+
+    window.setAmount = function () {
       const challanRates = {
         "Riding without helmet": 200,
         "Driving without license": 500,
@@ -160,24 +259,14 @@
         "Illegal parking": 150,
         "Using mobile phone while driving": 400
       };
-
       const selectedType = document.getElementById("challanType").value;
-      const amountInput = document.getElementById("helmet-amount");
-      amountInput.value = challanRates[selectedType] || '';
+      document.getElementById("helmet-amount").value = challanRates[selectedType] || '';
     }
 
-    document.getElementById("challanForm").addEventListener("submit", function (e) {
-      e.preventDefault(); // Prevent real submission
-      document.getElementById("successMessage").style.display = "block";
-
-      // Optional: Reset form after a delay
-      setTimeout(() => {
-        this.reset();
-        document.getElementById("helmet-amount").value = "";
-        document.getElementById("successMessage").style.display = "none";
-      }, 3000);
-    });
+    window.toggleSidebar = function () {
+      const sidebar = document.getElementById("sidebar");
+      sidebar.classList.toggle("open");
+    }
   </script>
-
 </body>
 </html>
