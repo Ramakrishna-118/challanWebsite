@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Check Traffic Challan Status</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: url(https://image.shutterstock.com/z/stock-photo-old-curve-road-warning-sign-on-blur-traffic-road-with-colorful-bokeh-light-abstract-background-528150670.jpg) no-repeat center center/cover;
+      position: relative;
+      animation: fadeIn 1.2s ease-in-out;
+    }
+
+    body::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background-color: rgba(0, 0, 0, 0.6);
+      z-index: 0;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .form-container, .challan-container {
+      position: relative;
+      z-index: 1;
+      background: rgb(194, 170, 73);
+      padding: 40px 30px;
+      border-radius: 12px;
+      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+      width: 90%;
+      max-width: 700px;
+      text-align: center;
+      display: none;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .challan-container {
+      background: rgb(194, 170, 73);
+    }
+
+    .form-container:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 20px 45px rgba(0, 0, 0, 0.4);
+    }
+
+    .active {
+      display: block;
+    }
+
+    h2 {
+      color: #333;
+    }
+
+    h3 {
+      color: #fff;
+    }
+
+    label {
+      display: block;
+      margin: 12px 0 6px;
+      font-weight: bold;
+      color: #444;
+      text-align: left;
+    }
+
+    input[type="text"],
+    input[type="submit"] {
+      width: 100%;
+      padding: 12px;
+      margin: 10px 0;
+      font-size: 16px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+    }
+
+    input[type="text"] {
+      text-align: center;
+    }
+
+    input[type="text"]:focus {
+      border-color: #007BFF;
+      outline: none;
+    }
+
+    input[type="submit"] {
+      background-color: #007BFF;
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background-color 0.3s ease, transform 0.2s;
+      border: none;
+    }
+
+    input[type="submit"]:hover {
+      background-color: #0056b3;
+      transform: scale(1.03);
+    }
+
+    #challan-details p {
+      font-size: 15px;
+      line-height: 1.6;
+      text-align: left;
+      color: #fff;
+    }
+
+    .back-button {
+      margin-top: 20px;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 8px;
+      background-color: #007BFF;
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    .back-button:hover {
+      background-color: #0056b3;
+    }
+
+    @media (max-width: 480px) {
+      .form-container, .challan-container {
+        padding: 30px 20px;
+      }
+    }
+
+.hamburger {
+      position: absolute;
+      top: 15px;
+      left: 15px;
+      width: 30px;
+      height: 24px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      cursor: pointer;
+      padding: 5px;
+      text-decoration: none;
+      z-index: 2;
+    }
+
+    .bar {
+      height: 4px;
+      width: 100%;
+      background-color: white;
+      border-radius: 2px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Form Container -->
+  <div class="form-container active" id="form-container">
+    <h2 style="color:white">Check Your Traffic Challan</h2>
+    <form id="challan-form">
+      <label for="vehicle-number">Enter Vehicle Number:</label>
+      <input type="text" id="vehicle-number" name="vehicle-number" required pattern="\d{4}" title="Enter a 4-digit number between 1000 and 9999" />
+      <input type="submit" value="Check Status" />
+    </form>
+  </div>
+
+  <!-- Challan Details Container -->
+  <div class="challan-container" id="challan-container">
+    <h3>Challan Details</h3>
+    <div id="challan-details"></div>
+    <button class="back-button" onclick="goBack()">← Back</button>
+  </div>
+
+ <a href="random.html" class="hamburger" title="Go to Home">
+    <div class="bar"></div>
+    <div class="bar"></div>
+    <div class="bar"></div>
+  </a>
+
+  <script>
+    const vehicleData = {
+      "1234": {
+        challan_no: "CHL123456",
+        date: "2024-12-01",
+        offences: ["Signal Jumping", "No Helmet"],
+        amount: 500,
+        challan_status: "Pending"
+      },
+      "2345": {
+        challan_no: "CHL789012",
+        date: "2024-10-15",
+        offences: ["Over Speeding"],
+        amount: 300,
+        challan_status: "Paid"
+      },
+      "3456": {
+        challan_no: "CHL345678",
+        date: "2025-01-10",
+        offences: ["Parking Violation"],
+        amount: 200,
+        challan_status: "Pending"
+      }
+    };
+
+    document.getElementById('challan-form').addEventListener('submit', function(event) {
+      event.preventDefault();
+
+      const vehicleNumber = document.getElementById('vehicle-number').value;
+      const formContainer = document.getElementById('form-container');
+      const challanContainer = document.getElementById('challan-container');
+      const detailsBox = document.getElementById('challan-details');
+
+      if (vehicleNumber >= 1000 && vehicleNumber <= 9999) {
+        if (vehicleData.hasOwnProperty(vehicleNumber)) {
+          const challan = vehicleData[vehicleNumber];
+          const detailsHTML = `
+            <p><strong>Challan Number:</strong> ${challan.challan_no}</p>
+            <p><strong>Date:</strong> ${challan.date}</p>
+            <p><strong>Offences:</strong> ${challan.offences.join(', ')}</p>
+            <p><strong>Amount:</strong> ₹${challan.amount}</p>
+            <p><strong>Status:</strong> ${challan.challan_status}</p>
+          `;
+          detailsBox.innerHTML = detailsHTML;
+
+          formContainer.classList.remove('active');
+          challanContainer.classList.add('active');
+        } else {
+          alert("⚠ Vehicle number not found. Please enter a correct number.");
+        }
+      } else {
+        alert("Please enter a valid 4-digit vehicle number between 1000 and 9999.");
+      }
+    });
+
+    function goBack() {
+      document.getElementById('form-container').classList.add('active');
+      document.getElementById('challan-container').classList.remove('active');
+      document.getElementById('challan-form').reset();
+    }
+  </script>
+
+</body>
+</html>

@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Traffic Challan Forms</title>
+  <style>
+    body {
+      margin: 0;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-family: Arial, sans-serif;
+      position: relative;
+      overflow: hidden;
+    }
+
+    body::before {
+      content: "";
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: url("https://media.istockphoto.com/photos/traffic-police-pulling-car-over-picture-id1040459842?k=6&m=1040459842&s=170667a&w=0&h=8fRnGyiizUn5frI6QBszHnErJDLWNIpEhopqNR5uhXc=") no-repeat center center;
+      background-size: cover;
+      filter: blur(8px);
+      z-index: -1;
+    }
+
+    .form-container {
+      background-color: lightgrey;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 4px 4px 10px black;
+      width: 400px;
+      box-sizing: border-box;
+      opacity: 0;
+      transform: scale(0.9);
+      animation: fadeIn 1s ease-out forwards;
+      position: relative;
+      z-index: 1;
+    }
+
+    @keyframes fadeIn {
+      0% {
+        opacity: 0;
+        transform: scale(0.9);
+      }
+      100% {
+        opacity: 1;
+        transform: scale(1);
+      }
+    }
+
+    label {
+      display: block;
+      margin: 8px 0 4px;
+    }
+
+    input[type="text"],
+    input[type="number"],
+    select {
+      padding: 10px;
+      margin: 10px 0;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      background-color: white;
+      width: 100%;
+      box-sizing: border-box;
+    }
+
+    input[type="submit"] {
+      background-color: green;
+      color: white;
+      padding: 10px;
+      border: none;
+      border-radius: 4px;
+      width: 100%;
+      cursor: pointer;
+      transition: background-color 0.3s ease, transform 0.2s;
+    }
+
+    input[type="submit"]:hover {
+      background-color: darkgreen;
+      transform: scale(1.05);
+    }
+
+    .message {
+      text-align: center;
+      margin-top: 10px;
+      font-weight: bold;
+      color: green;
+      display: none;
+    }
+  .hamburger {
+      position: absolute;
+      top: 15px;
+      left: 15px;
+      width: 30px;
+      height: 24px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      cursor: pointer;
+      padding: 5px;
+      text-decoration: none;
+      z-index: 2;
+    }
+
+    .bar {
+      height: 4px;
+      width: 100%;
+      background-color: white;
+      border-radius: 2px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="form-container">
+    <form id="challanForm">
+      <label>Challan Type:</label><br><br>
+      <select id="challanType" name="challanType" onchange="setAmount()" required>
+        <option value="">-- Select Challan Type --</option>
+        <option value="Riding without helmet">Riding without helmet</option>
+        <option value="Driving without license">Driving without license</option>
+        <option value="Pollution Under Control (PUC) Violation">Pollution Under Control (PUC) Violation</option>
+        <option value="Over speeding">Over speeding</option>
+        <option value="Jumping red light">Jumping red light</option>
+        <option value="Illegal parking">Illegal parking</option>
+        <option value="Using mobile phone while driving">Using mobile phone while driving</option>
+      </select><br><br>
+
+      <label for="helmet-challan-number">Challan Number:</label>
+      <input type="text" id="helmet-challan-number" name="helmet-challan-number" required>
+
+      <label for="helmet-vehicle-number">Vehicle Number:</label>
+      <input type="text" id="helmet-vehicle-number" name="helmet-vehicle-number" required>
+
+      <label for="helmet-amount">Amount (₹):</label>
+      <input type="number" id="helmet-amount" name="helmet-amount" required readonly>
+
+      <input type="submit" value="Submit">
+    </form>
+    <div class="message" id="successMessage">Challan added successfully!</div>
+  </div>
+
+ <a href="random.html" class="hamburger" title="Go to Home">
+    <div class="bar"></div>
+    <div class="bar"></div>
+    <div class="bar"></div>
+  </a>
+  <script>
+    function setAmount() {
+      const challanRates = {
+        "Riding without helmet": 200,
+        "Driving without license": 500,
+        "Pollution Under Control (PUC) Violation": 100,
+        "Over speeding": 300,
+        "Jumping red light": 250,
+        "Illegal parking": 150,
+        "Using mobile phone while driving": 400
+      };
+
+      const selectedType = document.getElementById("challanType").value;
+      const amountInput = document.getElementById("helmet-amount");
+      amountInput.value = challanRates[selectedType] || '';
+    }
+
+    document.getElementById("challanForm").addEventListener("submit", function (e) {
+      e.preventDefault(); // Prevent real submission
+      document.getElementById("successMessage").style.display = "block";
+
+      // Optional: Reset form after a delay
+      setTimeout(() => {
+        this.reset();
+        document.getElementById("helmet-amount").value = "";
+        document.getElementById("successMessage").style.display = "none";
+      }, 3000);
+    });
+  </script>
+
+</body>
+</html>

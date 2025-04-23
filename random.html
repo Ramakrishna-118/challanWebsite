@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Role-Based Login/Register</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      position: relative;
+      overflow: hidden;
+      animation: fadeInBody 1s ease-out forwards;
+    }
+
+    @keyframes fadeInBody {
+      0% { opacity: 0; transform: translateY(20px); }
+      100% { opacity: 1; transform: translateY(0); }
+    }
+
+    body::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: url('https://www.cybertalk.org/wp-content/uploads/2020/09/shutterstock_634876949.jpg') no-repeat center center/cover;
+      filter: blur(8px);
+      z-index: -1;
+      animation: zoomBlur 10s ease-in-out infinite alternate;
+    }
+
+    @keyframes zoomBlur {
+      0% { transform: scale(1); }
+      100% { transform: scale(1.05); }
+    }
+
+    .container {
+      background-color: rgba(0, 0, 0, 0.2);
+      padding: 20px;
+      width: 350px;
+      border-radius: 8px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+      z-index: 1;
+      animation: slideFadeIn 1.2s ease-out forwards;
+      opacity: 0;
+    }
+
+    @keyframes slideFadeIn {
+      0% { transform: translateY(-30px); opacity: 0; }
+      100% { transform: translateY(0); opacity: 1; }
+    }
+
+    h2, h3 {
+      text-align: center;
+    }
+
+    button {
+      width: 100%;
+      padding: 10px;
+      margin: 5px 0;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      background-color: white;
+      color: black;
+      font-size: 16px;
+      font-weight: bold;
+      transition: transform 0.2s ease, background-color 0.3s ease;
+    }
+
+    button:hover {
+      opacity: 0.95;
+      transform: scale(1.03);
+      background-color: #f0f0f0;
+    }
+
+    .form {
+      display: none;
+      flex-direction: column;
+      gap: 10px;
+      margin-top: 10px;
+      animation: fadeInForm 0.5s ease-out forwards;
+      opacity: 0;
+    }
+
+    @keyframes fadeInForm {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    input {
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+
+    .role-buttons, .choice-buttons {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    .error {
+      color: red;
+      font-size: 14px;
+      margin-top: 10px;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <img src="http://pluspng.com/img-png/png-user-icon-circled-user-icon-2240.png" alt="Logo" style="width: 100px; display: block; margin: 0 auto 15px auto;">
+    <h2 id="main-title">Select Role</h2>
+    <div class="role-buttons" id="role-buttons">
+      <button onclick="selectRole('user')">User</button>
+      <button onclick="selectRole('admin')">Admin</button>
+    </div>
+
+    <div id="next-steps" style="display:none;">
+      <h3 id="role-text">Continue as</h3>
+      <div class="choice-buttons">
+        <button onclick="showForm('login')">Login</button>
+        <button onclick="showForm('register')">Register</button>
+      </div>
+    </div>
+
+    <form id="user-login" class="form" onsubmit="submitUserLogin(event)">
+      <input type="text" id="ul-name" placeholder="Name" required>
+      <input type="password" id="ul-pass" placeholder="Password" required>
+      <button type="submit">Login</button>
+    </form>
+
+    <form id="user-register" class="form" onsubmit="submitUserRegister(event)">
+      <input type="text" id="ur-fullname" placeholder="Full Name" required>
+      <input type="text" id="ur-bike" placeholder="Bike Number" required>
+      <input type="email" id="ur-email" placeholder="Email" required>
+      <input type="text" id="ur-username" placeholder="Username" required>
+      <input type="password" id="ur-password" placeholder="Password" required>
+      <button type="submit">Register</button>
+    </form>
+
+    <form id="admin-login" class="form" onsubmit="submitAdminLogin(event)">
+      <input type="text" id="al-name" placeholder="Admin Name" required>
+      <input type="text" id="al-id" placeholder="Admin ID" required>
+      <input type="password" id="al-pass" placeholder="Password" required>
+      <button type="submit">Login</button>
+    </form>
+
+    <form id="admin-register" class="form" onsubmit="submitAdminRegister(event)">
+      <input type="text" id="ar-name" placeholder="Admin Full Name" required>
+      <input type="text" id="ar-id" placeholder="Admin ID" required>
+      <input type="email" id="ar-email" placeholder="Email" required>
+      <input type="password" id="ar-pass" placeholder="Password" required>
+      <button type="submit">Register</button>
+    </form>
+
+    <div class="error" id="error-msg"></div>
+  </div>
+
+  <script>
+    let selectedRole = '';
+
+    function selectRole(role) {
+      selectedRole = role;
+      document.getElementById('role-buttons').style.display = 'none';
+      document.getElementById('main-title').style.display = 'none';
+      document.getElementById('next-steps').style.display = 'block';
+      document.getElementById('role-text').innerText = `Continue as ${role.charAt(0).toUpperCase() + role.slice(1)}`;
+      hideForms();
+      document.getElementById('error-msg').textContent = '';
+    }
+
+    function showForm(type) {
+      hideForms();
+      document.getElementById('error-msg').textContent = '';
+      const formId = `${selectedRole}-${type}`;
+      const form = document.getElementById(formId);
+      if (form) {
+        form.style.display = 'flex';
+        form.style.animation = 'fadeInForm 0.5s ease-out forwards';
+      }
+    }
+
+    function hideForms() {
+      const forms = document.querySelectorAll('.form');
+      forms.forEach(f => {
+        f.style.display = 'none';
+        f.style.opacity = 0;
+      });
+    }
+
+    function submitUserLogin(e) {
+      e.preventDefault();
+      const name = document.getElementById('ul-name').value.trim();
+      const pass = document.getElementById('ul-pass').value.trim();
+      if (name && pass) {
+        window.location.href = "user.html";
+      } else {
+        showError("Please fill all user login fields.");
+      }
+    }
+
+    function submitUserRegister(e) {
+      e.preventDefault();
+      const fn = document.getElementById('ur-fullname').value.trim();
+      const bn = document.getElementById('ur-bike').value.trim();
+      const em = document.getElementById('ur-email').value.trim();
+      const un = document.getElementById('ur-username').value.trim();
+      const pw = document.getElementById('ur-password').value.trim();
+      if (fn && bn && em && un && pw) {
+        window.location.href = "user.html";
+      } else {
+        showError("Please fill all user registration fields.");
+      }
+    }
+
+    function submitAdminLogin(e) {
+      e.preventDefault();
+      const name = document.getElementById('al-name').value.trim();
+      const aid = document.getElementById('al-id').value.trim();
+      const pw = document.getElementById('al-pass').value.trim();
+      if (name && aid && pw) {
+        window.location.href = "admin.html";
+      } else {
+        showError("Please fill all admin login fields.");
+      }
+    }
+
+    function submitAdminRegister(e) {
+      e.preventDefault();
+      const name = document.getElementById('ar-name').value.trim();
+      const aid = document.getElementById('ar-id').value.trim();
+      const em = document.getElementById('ar-email').value.trim();
+      const pw = document.getElementById('ar-pass').value.trim();
+      if (name && aid && em && pw) {
+        window.location.href = "admin.html";
+      } else {
+        showError("Please fill all admin registration fields.");
+      }
+    }
+
+    function showError(msg) {
+      document.getElementById('error-msg').textContent = msg;
+    }
+  </script>
+</body>
+</html>
