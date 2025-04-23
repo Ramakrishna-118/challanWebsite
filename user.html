@@ -48,24 +48,20 @@
       transition: transform 0.3s ease, box-shadow 0.3s ease;
     }
 
-    .challan-container {
-      background: rgb(194, 170, 73);
-    }
-
     .form-container:hover {
       transform: translateY(-5px);
       box-shadow: 0 20px 45px rgba(0, 0, 0, 0.4);
+    }
+
+    .challan-container {
+      background: rgb(194, 170, 73);
     }
 
     .active {
       display: block;
     }
 
-    h2 {
-      color: #333;
-    }
-
-    h3 {
+    h2, h3 {
       color: #fff;
     }
 
@@ -139,34 +135,94 @@
       }
     }
 
-.hamburger {
+    /* Sidebar styles */
+    .menu-icon {
       position: absolute;
-      top: 15px;
-      left: 15px;
+      top: 20px;
+      left: 20px;
       width: 30px;
-      height: 24px;
+      height: 25px;
       display: flex;
       flex-direction: column;
       justify-content: space-between;
       cursor: pointer;
-      padding: 5px;
-      text-decoration: none;
-      z-index: 2;
+      z-index: 10;
     }
 
-    .bar {
+    .menu-icon .bar {
       height: 4px;
-      width: 100%;
-      background-color: white;
+      background: white;
       border-radius: 2px;
+      transition: all 0.3s ease;
+    }
+
+    .sidebar {
+      position: fixed;
+      top: 0;
+      left: -260px;
+      width: 260px;
+      height: 100%;
+      background: #ffffff;
+      box-shadow: 2px 0 10px rgba(0,0,0,0.2);
+      padding: 20px;
+      z-index: 999;
+      transition: left 0.3s ease;
+      overflow-y: auto;
+    }
+
+    .sidebar.open {
+      left: 0;
+    }
+
+    .sidebar-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .sidebar .close-btn {
+      font-size: 24px;
+      cursor: pointer;
+    }
+
+    .sidebar nav a {
+      display: block;
+      padding: 10px 0;
+      color: #333;
+      text-decoration: none;
+      font-weight: 500;
+      border-bottom: 1px solid #eee;
+    }
+
+    .sidebar nav a:hover {
+      background: #f7f7f7;
     }
   </style>
 </head>
 <body>
 
+  <!-- Sidebar -->
+  <div class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <span class="close-btn" onclick="toggleSidebar()">&times;</span>
+      <strong>Menu</strong>
+    </div>
+    <nav>
+      <a href="file:///C:/Users/balag/OneDrive/Desktop/project1/random.html">Home</a>
+      <a href="new.html">Traffic Rules</a>
+    </nav>
+  </div>
+
+  <!-- Hamburger Icon -->
+  <div class="menu-icon" onclick="toggleSidebar()">
+    <div class="bar"></div>
+    <div class="bar"></div>
+    <div class="bar"></div>
+  </div>
+
   <!-- Form Container -->
   <div class="form-container active" id="form-container">
-    <h2 style="color:white">Check Your Traffic Challan</h2>
+    <h2>Check Your Traffic Challan</h2>
     <form id="challan-form">
       <label for="vehicle-number">Enter Vehicle Number:</label>
       <input type="text" id="vehicle-number" name="vehicle-number" required pattern="\d{4}" title="Enter a 4-digit number between 1000 and 9999" />
@@ -178,14 +234,8 @@
   <div class="challan-container" id="challan-container">
     <h3>Challan Details</h3>
     <div id="challan-details"></div>
-    <button class="back-button" onclick="goBack()">← Back</button>
+    <button class="back-button" onclick="goBack()">&larr; Back</button>
   </div>
-
- <a href="index.html" class="hamburger" title="Go to Home">
-    <div class="bar"></div>
-    <div class="bar"></div>
-    <div class="bar"></div>
-  </a>
 
   <script>
     const vehicleData = {
@@ -214,7 +264,6 @@
 
     document.getElementById('challan-form').addEventListener('submit', function(event) {
       event.preventDefault();
-
       const vehicleNumber = document.getElementById('vehicle-number').value;
       const formContainer = document.getElementById('form-container');
       const challanContainer = document.getElementById('challan-container');
@@ -235,7 +284,7 @@
           formContainer.classList.remove('active');
           challanContainer.classList.add('active');
         } else {
-          alert("⚠ Vehicle number not found. Please enter a correct number.");
+          alert("\u26A0 Vehicle number not found. Please enter a correct number.");
         }
       } else {
         alert("Please enter a valid 4-digit vehicle number between 1000 and 9999.");
@@ -247,7 +296,20 @@
       document.getElementById('challan-container').classList.remove('active');
       document.getElementById('challan-form').reset();
     }
-  </script>
 
+    function toggleSidebar() {
+      const sidebar = document.getElementById("sidebar");
+      sidebar.classList.toggle("open");
+    }
+
+    document.addEventListener('click', function(event) {
+      const sidebar = document.getElementById("sidebar");
+      const icon = document.querySelector('.menu-icon');
+
+      if (!sidebar.contains(event.target) && !icon.contains(event.target)) {
+        sidebar.classList.remove("open");
+      }
+    });
+  </script>
 </body>
 </html>
