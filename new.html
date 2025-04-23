@@ -63,9 +63,93 @@
             border: 2px solid #555;
             border-radius: 6px;
         }
+
+ /* Sidebar styles */
+    .menu-icon {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      width: 30px;
+      height: 25px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      cursor: pointer;
+      z-index: 10;
+    }
+
+    .menu-icon .bar {
+      height: 4px;
+      background: white;
+      border-radius: 2px;
+      transition: all 0.3s ease;
+    }
+
+   .sidebar {
+  position: fixed;
+  top: 0;
+  left: -100%;
+  width: 260px;
+  height: 100%;
+  background: #ffffff;
+  box-shadow: 2px 0 10px rgba(0,0,0,0.2);
+  padding: 20px;
+  z-index: 999;
+  transition: left 0.3s ease;
+  overflow-y: auto;
+}
+
+.sidebar.open {
+  left: 0;
+}
+
+    .sidebar-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      color:black;
+    }
+
+    .sidebar .close-btn {
+      font-size: 24px;
+      cursor: pointer;
+      color:black;
+    }
+
+    .sidebar nav a {
+      display: block;
+      padding: 10px 0;
+      color: #333;
+      text-decoration: none;
+      font-weight: 500;
+      border-bottom: 1px solid #eee;
+    }
+
+    .sidebar nav a:hover {
+      background: #f7f7f7;
+    }
     </style>
 </head>
 <body>
+
+  <!-- Sidebar -->
+  <div class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <span class="close-btn" onclick="toggleSidebar()">&times;</span>
+      <strong>Menu</strong>
+    </div>
+    <nav>
+      <a href="file:///C:/Users/balag/OneDrive/Desktop/project1/random.html">Home</a>
+      <a href="new.html">Traffic Rules</a>
+    </nav>
+  </div>
+
+  <!-- Hamburger Icon -->
+  <div class="menu-icon" onclick="toggleSidebar()">
+    <div class="bar"></div>
+    <div class="bar"></div>
+    <div class="bar"></div>
+  </div>
     <div class="container">
         <h1>Traffic Rules and Fines</h1>
 
@@ -100,5 +184,20 @@
         <p><strong>Cautionary Signs:</strong></p>
         <img src="https://trafficpolice.tripura.gov.in/sites/default/files/inline-images/traffic_sign.png" alt="Cautionary Traffic Signs">
     </div>
+  <script>
+ function toggleSidebar() {
+      const sidebar = document.getElementById("sidebar");
+      sidebar.classList.toggle("open");
+    }
+
+    document.addEventListener('click', function(event) {
+      const sidebar = document.getElementById("sidebar");
+      const icon = document.querySelector('.menu-icon');
+
+      if (!sidebar.contains(event.target) && !icon.contains(event.target)) {
+        sidebar.classList.remove("open");
+      }
+    });
+  </script>
 </body>
 </html>
